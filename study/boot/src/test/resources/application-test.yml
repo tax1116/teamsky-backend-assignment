@@ -12,6 +12,3 @@ spring:
   sql:
     init:
       mode: always
-
-correct-rate:
-  sync-interval-ms: 999999999
