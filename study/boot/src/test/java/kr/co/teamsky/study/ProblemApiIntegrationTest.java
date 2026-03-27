@@ -155,7 +155,7 @@ class ProblemApiIntegrationTest {
                             .post()
                             .uri("/api/problems/skip")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(new SkipProblemRequest(1L, SKIP_USER, 5L))
+                            .body(new SkipProblemRequest(1L, SKIP_USER, 999L))
                             .retrieve()
                             .body(ProblemResponse.class))
                     .isInstanceOf(HttpClientErrorException.NotFound.class);
@@ -276,11 +276,11 @@ class ProblemApiIntegrationTest {
 
         @Test
         void 정답률_집계가_30명_미만이면_null() {
-            submitAnswer(4L, HISTORY_RATE_NULL_USER, "SUBJECTIVE", List.of("양력"));
+            submitAnswer(5L, HISTORY_RATE_NULL_USER, "OBJECTIVE", List.of("1"));
 
             var response = restClient
                     .get()
-                    .uri("/api/problems/history?userId=" + HISTORY_RATE_NULL_USER + "&problemId=4")
+                    .uri("/api/problems/history?userId=" + HISTORY_RATE_NULL_USER + "&problemId=5")
                     .retrieve()
                     .body(ProblemHistoryResponse.class);
 
@@ -294,12 +294,12 @@ class ProblemApiIntegrationTest {
                     userId < HISTORY_RATE_30_PLUS_START_USER + 30;
                     userId++) {
                 submitAnswer(
-                        1L, userId, "OBJECTIVE", List.of(userId < HISTORY_RATE_30_PLUS_START_USER + 20 ? "1" : "2"));
+                        6L, userId, "OBJECTIVE", List.of(userId < HISTORY_RATE_30_PLUS_START_USER + 20 ? "1" : "2"));
             }
 
             var response = restClient
                     .get()
-                    .uri("/api/problems/history?userId=" + HISTORY_RATE_30_PLUS_START_USER + "&problemId=1")
+                    .uri("/api/problems/history?userId=" + HISTORY_RATE_30_PLUS_START_USER + "&problemId=6")
                     .retrieve()
                     .body(ProblemHistoryResponse.class);
 

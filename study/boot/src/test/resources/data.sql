@@ -52,6 +52,8 @@ INSERT INTO problem (chapter_id, content, explanation, problem_type) VALUES (1, 
 INSERT INTO problem (chapter_id, content, explanation, problem_type) VALUES (1, '받음각(Angle of Attack)이 증가할 때 나타나는 현상으로 올바른 것을 모두 고르시오.', '받음각이 증가하면 양력이 증가하고 항력도 함께 증가합니다. 단, 임계 받음각을 초과하면 실속이 발생합니다.', 'OBJECTIVE');
 INSERT INTO problem (chapter_id, content, explanation, problem_type) VALUES (1, '베르누이 원리에 대한 설명으로 올바른 것은?', '베르누이 원리에 따르면 유체의 속도가 증가하면 압력이 감소합니다.', 'OBJECTIVE');
 INSERT INTO problem (chapter_id, content, explanation, problem_type) VALUES (1, '날개 위아래의 압력 차이에 의해 발생하는 힘의 이름은?', '양력(Lift)은 날개 윗면의 빠른 공기 흐름으로 인한 저압과 아랫면의 고압 차이에 의해 발생합니다.', 'SUBJECTIVE');
+INSERT INTO problem (chapter_id, content, explanation, problem_type) VALUES (2, '정답률 null 검증용 문제', '테스트 전용 문제입니다.', 'OBJECTIVE');
+INSERT INTO problem (chapter_id, content, explanation, problem_type) VALUES (2, '정답률 30명 이상 검증용 문제', '테스트 전용 문제입니다.', 'OBJECTIVE');
 
 -- 선택지 (문제 1)
 INSERT INTO choice (problem_id, choice_number, content) VALUES (1, 1, '양력(Lift)');
@@ -74,6 +76,20 @@ INSERT INTO choice (problem_id, choice_number, content) VALUES (3, 3, '유체의
 INSERT INTO choice (problem_id, choice_number, content) VALUES (3, 4, '유체의 밀도가 높을수록 속도가 증가한다');
 INSERT INTO choice (problem_id, choice_number, content) VALUES (3, 5, '유체의 온도가 높을수록 압력이 증가한다');
 
+-- 선택지 (문제 5)
+INSERT INTO choice (problem_id, choice_number, content) VALUES (5, 1, '테스트 정답');
+INSERT INTO choice (problem_id, choice_number, content) VALUES (5, 2, '테스트 오답1');
+INSERT INTO choice (problem_id, choice_number, content) VALUES (5, 3, '테스트 오답2');
+INSERT INTO choice (problem_id, choice_number, content) VALUES (5, 4, '테스트 오답3');
+INSERT INTO choice (problem_id, choice_number, content) VALUES (5, 5, '테스트 오답4');
+
+-- 선택지 (문제 6)
+INSERT INTO choice (problem_id, choice_number, content) VALUES (6, 1, '테스트 정답');
+INSERT INTO choice (problem_id, choice_number, content) VALUES (6, 2, '테스트 오답1');
+INSERT INTO choice (problem_id, choice_number, content) VALUES (6, 3, '테스트 오답2');
+INSERT INTO choice (problem_id, choice_number, content) VALUES (6, 4, '테스트 오답3');
+INSERT INTO choice (problem_id, choice_number, content) VALUES (6, 5, '테스트 오답4');
+
 -- 정답 (문제 1 - 단일)
 INSERT INTO answer (problem_id, answer) VALUES (1, '1');
 
@@ -87,3 +103,9 @@ INSERT INTO answer (problem_id, answer) VALUES (3, '2');
 -- 정답 (문제 4 - 주관식)
 INSERT INTO answer (problem_id, answer) VALUES (4, '양력');
 INSERT INTO answer (problem_id, answer) VALUES (4, 'Lift');
+
+-- 정답 (문제 5 - 단일)
+INSERT INTO answer (problem_id, answer) VALUES (5, '1');
+
+-- 정답 (문제 6 - 단일)
+INSERT INTO answer (problem_id, answer) VALUES (6, '1');
