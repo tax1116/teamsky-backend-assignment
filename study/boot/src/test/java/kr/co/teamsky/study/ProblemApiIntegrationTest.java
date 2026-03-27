@@ -31,7 +31,7 @@ class ProblemApiIntegrationTest {
     private static final long DUPLICATE_USER = 5L;
     private static final long SKIP_ONE_TIME_USER = 11L;
     private static final long HISTORY_RATE_NULL_USER = 12L;
-    private static final long HISTORY_RATE_30_PLUS_START_USER = 100L;
+    private static final long HISTORY_RATE_30_PLUS_START_USER = 13L;
 
     @LocalServerPort
     private int port;
@@ -290,8 +290,10 @@ class ProblemApiIntegrationTest {
 
         @Test
         void 정답률_집계가_30명_이상이면_반올림된_값을_반환한다() {
-            for (long userId = HISTORY_RATE_30_PLUS_START_USER; userId < HISTORY_RATE_30_PLUS_START_USER + 30; userId++) {
-                submitAnswer(1L, userId, "OBJECTIVE", List.of(userId < 120L ? "1" : "2"));
+            for (long userId = HISTORY_RATE_30_PLUS_START_USER;
+                    userId < HISTORY_RATE_30_PLUS_START_USER + 30;
+                    userId++) {
+                submitAnswer(1L, userId, "OBJECTIVE", List.of(userId < HISTORY_RATE_30_PLUS_START_USER + 20 ? "1" : "2"));
             }
 
             var response = restClient
