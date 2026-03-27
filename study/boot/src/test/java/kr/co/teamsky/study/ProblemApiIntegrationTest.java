@@ -276,11 +276,11 @@ class ProblemApiIntegrationTest {
 
         @Test
         void 정답률_집계가_30명_미만이면_null() {
-            submitAnswer(1L, HISTORY_RATE_NULL_USER, "OBJECTIVE", List.of("1"));
+            submitAnswer(4L, HISTORY_RATE_NULL_USER, "SUBJECTIVE", List.of("양력"));
 
             var response = restClient
                     .get()
-                    .uri("/api/problems/history?userId=" + HISTORY_RATE_NULL_USER + "&problemId=1")
+                    .uri("/api/problems/history?userId=" + HISTORY_RATE_NULL_USER + "&problemId=4")
                     .retrieve()
                     .body(ProblemHistoryResponse.class);
 
@@ -293,7 +293,8 @@ class ProblemApiIntegrationTest {
             for (long userId = HISTORY_RATE_30_PLUS_START_USER;
                     userId < HISTORY_RATE_30_PLUS_START_USER + 30;
                     userId++) {
-                submitAnswer(1L, userId, "OBJECTIVE", List.of(userId < HISTORY_RATE_30_PLUS_START_USER + 20 ? "1" : "2"));
+                submitAnswer(
+                        1L, userId, "OBJECTIVE", List.of(userId < HISTORY_RATE_30_PLUS_START_USER + 20 ? "1" : "2"));
             }
 
             var response = restClient
