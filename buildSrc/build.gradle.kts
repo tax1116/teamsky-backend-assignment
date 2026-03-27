@@ -11,8 +11,5 @@ dependencies {
     implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
     implementation(libs.spring.boot.gradle)
     implementation(libs.spring.dependency.management)
-    implementation(libs.kotlin.gradle)
-    implementation(libs.kotlin.allopen)
-    implementation(libs.kotlin.noarg)
-    implementation(libs.ktlint)
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:7.0.3")
 }

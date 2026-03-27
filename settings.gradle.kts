@@ -1,9 +1,11 @@
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
 }
-// TODO: Change the root project name
-rootProject.name = "spring-boot-multi-module-template"
+rootProject.name = "teamsky-backend-assignment"
 
-// TODO: Change the name of the project
-// TODO: Add the names of the projects to include
-include("demo")
+include("study:boot")
+include("study:api")
+include("study:app")
+include("study:domain")
+include("study:infra:persistence")
+include("study:infra:cache")

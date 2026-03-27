@@ -1,60 +1,124 @@
-# spring-boot-multi-module-template
+# 학습 플랫폼 - 단원별 문제 풀이 API
 
-스프링 부트 멀티모듈 템플릿 프로젝트
+학습 플랫폼의 핵심 기능인 단원별 문제 풀이와 풀이 이력 조회 API를 구현한 과제입니다.
 
-## 기술 스택
+객체지향적 설계와 데이터 처리 성능을 고려하여, 단순 CRUD가 아닌 다음 세 가지에 목표를 두었습니다.
 
-- **Language:** Kotlin 2.2.21
-- **Framework:** Spring Boot 4.0.3
-- **Build:** Gradle 9.4.0 (Kotlin DSL)
-- **Java:** 21
-- **Test:** JUnit 5 (spring-boot-starter-test)
-- **Lint:** ktlint
+- 사용자가 단원별로 문제를 하나씩 풀 수 있는 학습 흐름 제공
+- 정답 제출과 풀이 이력 조회를 안정적으로 처리하는 도메인 모델링
+- 정답률과 랜덤 조회에서 조회 성능을 고려한 현실적인 설계
 
-## 빌드 명령어
+## 실행 방법
+
+### Docker Compose (앱 + DB 한 번에 구동)
+
+```bash
+cd docker && docker compose up
+```
+
+- MySQL(`3306`)과 애플리케이션(`8080`)이 함께 실행됩니다.
+- 최초 실행 시 `docker/init.sql`로 스키마와 샘플 데이터가 적재됩니다.
+- 별도의 사전 빌드 없이 `docker compose up`만으로 실행할 수 있습니다.
+
+```bash
+cd docker && docker compose up -d    # 백그라운드 실행
+cd docker && docker compose down     # 종료
+cd docker && docker compose down -v  # 종료 + 볼륨 제거 (스키마 초기화)
+```
+
+### 로컬 개발
+
+```bash
+./gradlew :study:boot:bootRun
+```
+
+- 로컬 실행 전 MySQL이 `localhost:3306/teamsky`에서 실행 중이어야 합니다.
+- 기본 계정 정보는 `teamsky / teamsky`입니다.
+
+### API 문서
+
+Swagger UI: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+### 빌드 및 테스트
 
 ```bash
 ./gradlew build              # 전체 모듈 빌드 및 테스트
-./gradlew check              # 전체 검사 실행 (테스트 + ktlint)
-./gradlew bootRun            # Spring Boot 애플리케이션 실행
-./gradlew bootJar            # 실행 가능한 jar 빌드
-
-# 테스트
+./gradlew check              # 정적 검증 및 테스트 실행
 ./gradlew test               # 전체 테스트 실행
-./gradlew :demo:test         # 특정 모듈 테스트 실행
-./gradlew test --tests "fully.qualified.TestClass"  # 단일 테스트 클래스 실행
-
-# 린트 (ktlint)
-./gradlew ktlintCheck        # 코드 스타일 검사
-./gradlew ktlintFormat       # 코드 자동 포맷팅
+./gradlew :study:domain:test # 특정 모듈 테스트 실행
 ```
 
-## 아키텍처
+- Testcontainers 기반 통합 테스트가 포함되어 있어 Docker가 실행 중이어야 합니다.
+- 도메인 채점 규칙 단위 테스트, API 통합 테스트(해피/실패 케이스), 동시 제출 시나리오 테스트를 포함합니다.
+- 정적 검증(lint)도 함께 구성되어 있습니다.
 
-### 컨벤션 플러그인 시스템 (buildSrc)
+## 기술 스택
 
-빌드 로직은 개별 모듈의 build 파일이 아닌 `buildSrc/src/main/kotlin/`에 컨벤션 플러그인으로 중앙 집중화되어 있다.
+- **Language:** Java 21
+- **Framework:** Spring Boot 4.0.3
+- **ORM:** JPA (Hibernate)
+- **Database:** MySQL
+- **Build:** Gradle (Kotlin DSL) 멀티모듈
+- **Test:** JUnit 5, TestContainers (MySQL)
 
-| 플러그인 | 설명 |
+## 모듈 구조
+
+```
+study/
+├── boot              # Spring Boot 애플리케이션 진입점
+├── api               # REST 컨트롤러, 요청/응답 DTO, Validation
+├── app               # 애플리케이션 서비스 (유스케이스, 트랜잭션 경계)
+├── domain            # 순수 POJO 도메인 모델, 저장소 인터페이스 (Spring/JPA 의존성 없음)
+├── infra/
+│   ├── persistence   # JPA 엔티티, 리포지토리 구현체
+│   └── cache         # 정답률 인메모리 집계 및 스킵 캐시
+```
+
+## 도메인 모델
+
+| 도메인 | 설명 |
 |---|---|
-| `global-convention` | 모든 모듈에 적용. Kotlin JVM, ktlint, Java 21 툴체인, kotlin-logging, JUnit 5, 저장소 설정 |
-| `spring-boot-convention` | Spring Boot 플러그인, dependency-management 플러그인, Kotlin Spring 플러그인(all-open) 적용. bootJar로 실행 가능한 앱 빌드 |
-| `spring-jar-convention` | Spring Boot BOM을 `platform()`으로 가져오는 라이브러리 모듈용. bootJar 없이 일반 jar로 빌드 |
+| Chapter | 단원 |
+| Problem | 문제 (객관식/주관식 구분, 해설 포함, 채점 로직 위치) |
+| Choice | 객관식 선택지 |
+| Answer | 문제의 정답 (복수 정답 가능) |
+| Submission | 유저의 풀이 기록 (제출 답안, 정답/부분정답/오답) |
+| User | 사용자 |
 
-### 새 모듈 추가 방법
+- 도메인 모델은 Spring/JPA 어노테이션 없이 순수 Java record로 구성했습니다.
+- 모든 ID는 Typed Value Object(ProblemId, UserId 등)로 감싸 타입 혼동을 방지했습니다.
 
-1. 프로젝트 루트에 새 디렉토리 생성
-2. 적절한 컨벤션 플러그인을 적용하는 `build.gradle.kts` 추가
-3. `settings.gradle.kts`에 `include()`로 모듈 등록
-4. Kotlin, 린트, 테스트, 의존성 관리가 자동으로 상속됨
+## 핵심 설계 판단
 
-### 버전 관리
+### 랜덤 문제 조회
 
-모든 의존성 버전은 `gradle/libs.versions.toml`(Gradle 버전 카탈로그)에서 중앙 관리.
+- 미풀이 문제는 `submission` 테이블 기준 NOT EXISTS로 판별합니다. `(userId, problemId)` 복합 인덱스를 활용합니다.
+- DB `ORDER BY RAND()`는 풀스캔 이슈로 사용하지 않았습니다. 미풀이 문제 ID 목록을 조회한 뒤 애플리케이션에서 랜덤 선택합니다.
+- skip 상태는 Caffeine 로컬 캐시에 `userId:chapterId → skippedProblemId` 형태로 관리하며, 다음 1회 조회에만 적용 후 즉시 제거됩니다.
 
-## CI
+### 답안 제출과 채점
 
-GitHub Actions에서 JDK 21(Amazon Corretto) 환경으로 main/dev push와 PR에 `./gradlew check` 실행.
+- 채점 규칙은 `domain`의 `Problem` 객체에 두어 도메인 규칙을 한 곳에 모았습니다.
+- 객관식은 1-base 선택지 번호, 주관식은 trim 후 exact match(복수 정답 허용)로 비교합니다.
+- 부분 정답은 정답을 1개 이상 포함했지만 전체 정답 집합과 같지 않은 경우로 처리합니다.
+- 같은 유저가 같은 문제를 중복 제출하면 409 Conflict로 응답합니다.
 
-- `org.gradle.caching=true`로 Gradle 빌드 캐시 활성화
-- merge-base 기반 캐싱 전략으로 증분 빌드 최적화
+### 정답률 집계
+
+- 정답률은 원본 제출 데이터(`submission`)로부터 계산되는 파생 집계 데이터로 보았습니다.
+- 제출 성공 자체가 더 중요하다고 판단하여, 집계 정합성을 위해 제출 트랜잭션에 락/재시도를 강하게 묶지 않았습니다.
+- 조회 성능을 위해 문제별 정답률은 인메모리 캐시(ConcurrentHashMap + AtomicInteger)에 보관하고, `@Scheduled` 스케줄러가 DB 집계값으로 주기적으로 보정합니다.
+- 이 선택은 강한 일관성보다 조회 성능과 쓰기 경량화를 우선한 trade-off입니다.
+- 부분 정답은 정답률 계산 시 오답으로 처리합니다. 30명 이상 풀었을 때만 정답률을 제공하며, 미만이면 null을 반환합니다.
+- 멀티 인스턴스 환경은 이번 과제 범위에서 직접 고려하지 않았습니다. 해당 환경이 필요하면 글로벌 캐시(Redis) 또는 이벤트 전파 구조로 확장할 수 있으며, 스케줄러 중복 실행 방지는 ShedLock 등 분산 락으로 대응 가능합니다.
+
+### 예외 처리
+
+`ErrorCode` enum에 에러 코드, HTTP 상태, 메시지를 매핑하고 `BusinessException`으로 통일했습니다.
+
+| 상황 | HTTP 상태 | 에러 코드 |
+|---|---|---|
+| 풀 수 있는 문제가 없음 | 404 | 4003 |
+| 존재하지 않는 문제/이력 | 404 | 4001, 4002 |
+| 이미 제출한 문제 재제출 | 409 | 4004 |
+| 잘못된 answerType, 범위 초과 등 | 400 | 4005 |

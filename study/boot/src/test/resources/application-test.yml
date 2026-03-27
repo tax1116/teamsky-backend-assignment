@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0:///teamsky
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username: teamsky
+    password: teamsky
+  jpa:
+    hibernate:
+      ddl-auto: create
+    open-in-view: false
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always

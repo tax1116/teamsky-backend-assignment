@@ -1,0 +1,3 @@
+plugins {
+    id("global-convention")
+}

@@ -1,22 +1,17 @@
 [versions]
-kotlin = "2.2.21"
-kotlin-logging = "7.0.3"
-ktlint = "14.1.0"
 spring-boot = "4.0.3"
 spring-dependency-management = "1.1.7"
+testcontainers = "1.20.4"
+lombok = "1.18.36"
+
+spotless = "7.0.3"
+
+spotless-plugin = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
 [libraries]
-# 프로젝트 공통 라이브러리
-kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
-
 # gradle 플러그인
-kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlin-allopen = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }
-kotlin-noarg = { module = "org.jetbrains.kotlin:kotlin-noarg", version.ref = "kotlin" }
-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
 spring-boot-gradle = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "spring-boot" }
 spring-dependency-management = { module = "io.spring.gradle:dependency-management-plugin", version.ref = "spring-dependency-management" }
 
@@ -26,9 +21,19 @@ spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-star
 # spring
 spring-boot-dependencies-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
 spring-context = { module = "org.springframework:spring-context" }
+spring-tx = { module = "org.springframework:spring-tx" }
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 spring-boot-starter-aop = { module = "org.springframework.boot:spring-boot-starter-aop" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
 spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
-
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+mysql-connector = { module = "com.mysql:mysql-connector-j" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }
+spring-retry = { module = "org.springframework.retry:spring-retry", version = "2.0.11" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version = "2.8.6" }
+testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
+testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }

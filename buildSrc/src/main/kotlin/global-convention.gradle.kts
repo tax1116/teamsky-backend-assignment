@@ -1,12 +1,12 @@
-import kr.co.taek.dev.build.JDK_VERSION
-import kr.co.taek.dev.build.libs
+import kr.co.teamsky.study.build.JDK_VERSION
+import kr.co.teamsky.study.build.libs
 
 plugins {
-    kotlin("jvm")
-    id("org.jlleitschuh.gradle.ktlint")
+    `java-library`
+    id("com.diffplug.spotless")
 }
 
-group = "kr.co.taek.dev"
+group = "kr.co.teamsky.study"
 
 java {
     toolchain {
@@ -21,10 +21,17 @@ repositories {
     }
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xjsr305=strict")
+spotless {
+    java {
+        palantirJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
     }
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-parameters")
 }
 
 tasks.withType<Test> {
@@ -32,14 +39,12 @@ tasks.withType<Test> {
 }
 
 dependencies {
-    implementation(libs.kotlin.logging)
-    testImplementation(libs.spring.boot.starter.test)
-}
-
-ktlint {
-    filter {
-        exclude {
-            it.file.path.startsWith(project.layout.buildDirectory.get().dir("generated").toString())
-        }
-    }
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.assertj:assertj-core:3.27.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
