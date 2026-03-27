@@ -42,7 +42,7 @@ public class ProblemService {
     private final CorrectRateRepository correctRateRepository;
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ProblemResult getRandomProblem(ChapterId chapterId, UserId userId) {
         validateUserExists(userId);
         List<ProblemId> unsolvedIds = problemRepository.findUnsolvedProblemIds(chapterId, userId);
@@ -53,9 +53,6 @@ public class ProblemService {
                 chapterId.value(),
                 unsolvedIds.size(),
                 skippedId != null ? skippedId.value() : null);
-        if (skippedId != null) {
-            skipCacheRepository.clearSkippedProblemId(userId, chapterId);
-        }
 
         List<ProblemId> candidates = new ArrayList<>(unsolvedIds);
         if (skippedId != null) {
@@ -68,6 +65,9 @@ public class ProblemService {
         }
 
         ProblemId selectedId = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+        if (skippedId != null) {
+            skipCacheRepository.clearSkippedProblemId(userId, chapterId);
+        }
         log.info(
                 "랜덤 문제 조회 완료 - userId={}, chapterId={}, candidateCount={}, selectedProblemId={}",
                 userId.value(),
@@ -77,7 +77,7 @@ public class ProblemService {
         return getProblemResult(selectedId);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ProblemResult skipProblem(ChapterId chapterId, UserId userId, ProblemId problemId) {
         validateUserExists(userId);
         Problem problem = problemRepository
@@ -120,7 +120,7 @@ public class ProblemService {
 
         AnswerStatus status = problem.grade(userAnswers, correctAnswers);
 
-        Submission submission = Submission.create(userId, problemId, status, userAnswers);
+        Submission submission = new Submission(null, userId, problemId, status, userAnswers);
         try {
             submissionRepository.save(submission);
         } catch (DuplicateSubmissionConflictException e) {
@@ -212,7 +212,7 @@ public class ProblemService {
                 problem.explanation(),
                 correctAnswers,
                 submission.userAnswers(),
-                correctRateRepository.calculateCorrectRate(problemId));
+                calculateCorrectRate(problemId));
         log.info(
                 "풀이 이력 조회 완료 - userId={}, problemId={}, answerStatus={}, answerCorrectRate={}",
                 userId.value(),
@@ -227,7 +227,14 @@ public class ProblemService {
                 .findById(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException(problemId.value()));
         List<Choice> choices = choiceRepository.findByProblemId(problemId);
-        return ProblemResult.of(problem, choices, correctRateRepository.calculateCorrectRate(problemId));
+        return ProblemResult.of(problem, choices, calculateCorrectRate(problemId));
+    }
+
+    private Integer calculateCorrectRate(ProblemId problemId) {
+        return correctRateRepository
+                .findStats(problemId)
+                .map(CorrectRateStats::calculateCorrectRate)
+                .orElse(null);
     }
 
     private void validateUserExists(UserId userId) {

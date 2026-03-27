@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "choice")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChoiceEntity extends BaseEntity {
+public class ChoiceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

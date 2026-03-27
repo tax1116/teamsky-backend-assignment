@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "answer")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AnswerEntity extends BaseEntity {
+public class AnswerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

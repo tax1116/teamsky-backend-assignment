@@ -2,6 +2,7 @@ package kr.co.teamsky.study.infra.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import kr.co.teamsky.study.domain.model.CorrectRateStats;
 import kr.co.teamsky.study.domain.model.id.ProblemId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -18,47 +19,29 @@ class InMemoryCorrectRateRepositoryTest {
     }
 
     @Nested
-    class 정답률_계산 {
+    class 집계_조회 {
 
         @Test
-        void 풀이_수가_30명_미만이면_null() {
-            for (int i = 0; i < 29; i++) {
-                repository.increment(problemId, true);
-            }
-
-            assertThat(repository.calculateCorrectRate(problemId)).isNull();
+        void 데이터가_없으면_empty() {
+            assertThat(repository.findStats(problemId)).isEmpty();
         }
 
         @Test
-        void 풀이_수가_30명_이상이면_정답률_반환() {
-            for (int i = 0; i < 30; i++) {
-                repository.increment(problemId, i < 20);
-            }
-
-            assertThat(repository.calculateCorrectRate(problemId)).isEqualTo(67);
-        }
-
-        @Test
-        void 전원_정답이면_100() {
+        void 풀이_수와_정답_수를_반환한다() {
             for (int i = 0; i < 30; i++) {
                 repository.increment(problemId, true);
             }
 
-            assertThat(repository.calculateCorrectRate(problemId)).isEqualTo(100);
+            assertThat(repository.findStats(problemId)).contains(new CorrectRateStats(30, 30));
         }
 
         @Test
-        void 전원_오답이면_0() {
-            for (int i = 0; i < 30; i++) {
-                repository.increment(problemId, false);
+        void 정답_수는_정답인_경우에만_증가한다() {
+            for (int i = 0; i < 10; i++) {
+                repository.increment(problemId, i < 5);
             }
 
-            assertThat(repository.calculateCorrectRate(problemId)).isEqualTo(0);
-        }
-
-        @Test
-        void 데이터_없으면_null() {
-            assertThat(repository.calculateCorrectRate(problemId)).isNull();
+            assertThat(repository.findStats(problemId)).contains(new CorrectRateStats(10, 5));
         }
     }
 
@@ -66,10 +49,10 @@ class InMemoryCorrectRateRepositoryTest {
     class 초기_로딩 {
 
         @Test
-        void DB에서_로딩한_값으로_정답률_계산() {
+        void DB에서_로딩한_값으로_집계_조회() {
             repository.load(problemId.value(), 100, 75);
 
-            assertThat(repository.calculateCorrectRate(problemId)).isEqualTo(75);
+            assertThat(repository.findStats(problemId)).contains(new CorrectRateStats(100, 75));
         }
 
         @Test
@@ -77,7 +60,7 @@ class InMemoryCorrectRateRepositoryTest {
             repository.load(problemId.value(), 30, 20);
             repository.increment(problemId, true);
 
-            assertThat(repository.calculateCorrectRate(problemId)).isEqualTo(68);
+            assertThat(repository.findStats(problemId)).contains(new CorrectRateStats(31, 21));
         }
     }
 }

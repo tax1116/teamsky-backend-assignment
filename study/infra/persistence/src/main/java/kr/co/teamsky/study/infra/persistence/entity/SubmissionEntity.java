@@ -13,10 +13,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "submission", uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "problemId"}))
+@Table(name = "submission", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "problem_id"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SubmissionEntity extends BaseEntity {
+public class SubmissionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

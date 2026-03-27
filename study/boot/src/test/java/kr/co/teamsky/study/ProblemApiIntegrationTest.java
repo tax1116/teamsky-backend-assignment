@@ -30,6 +30,8 @@ class ProblemApiIntegrationTest {
     private static final long SKIP_USER = 4L;
     private static final long DUPLICATE_USER = 5L;
     private static final long SKIP_ONE_TIME_USER = 11L;
+    private static final long HISTORY_RATE_NULL_USER = 12L;
+    private static final long HISTORY_RATE_30_PLUS_START_USER = 100L;
 
     @LocalServerPort
     private int port;
@@ -80,6 +82,23 @@ class ProblemApiIntegrationTest {
                             .uri("/api/problems/random")
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(new RandomProblemRequest(1L, 999L))
+                            .retrieve()
+                            .body(ProblemResponse.class))
+                    .isInstanceOf(HttpClientErrorException.NotFound.class);
+        }
+
+        @Test
+        void 모든_문제를_다_풀면_404() {
+            submitAnswer(1L, RANDOM_USER, "OBJECTIVE", List.of("1"));
+            submitAnswer(2L, RANDOM_USER, "OBJECTIVE", List.of("1", "3"));
+            submitAnswer(3L, RANDOM_USER, "OBJECTIVE", List.of("2"));
+            submitAnswer(4L, RANDOM_USER, "SUBJECTIVE", List.of("양력"));
+
+            assertThatThrownBy(() -> restClient
+                            .post()
+                            .uri("/api/problems/random")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(new RandomProblemRequest(1L, RANDOM_USER))
                             .retrieve()
                             .body(ProblemResponse.class))
                     .isInstanceOf(HttpClientErrorException.NotFound.class);
@@ -253,6 +272,36 @@ class ProblemApiIntegrationTest {
             assertThat(response.problemId()).isEqualTo(3L);
             assertThat(response.answerStatus()).isEqualTo("CORRECT");
             assertThat(response.userAnswers()).contains("2");
+        }
+
+        @Test
+        void 정답률_집계가_30명_미만이면_null() {
+            submitAnswer(1L, HISTORY_RATE_NULL_USER, "OBJECTIVE", List.of("1"));
+
+            var response = restClient
+                    .get()
+                    .uri("/api/problems/history?userId=" + HISTORY_RATE_NULL_USER + "&problemId=1")
+                    .retrieve()
+                    .body(ProblemHistoryResponse.class);
+
+            assertThat(response).isNotNull();
+            assertThat(response.answerCorrectRate()).isNull();
+        }
+
+        @Test
+        void 정답률_집계가_30명_이상이면_반올림된_값을_반환한다() {
+            for (long userId = HISTORY_RATE_30_PLUS_START_USER; userId < HISTORY_RATE_30_PLUS_START_USER + 30; userId++) {
+                submitAnswer(1L, userId, "OBJECTIVE", List.of(userId < 120L ? "1" : "2"));
+            }
+
+            var response = restClient
+                    .get()
+                    .uri("/api/problems/history?userId=" + HISTORY_RATE_30_PLUS_START_USER + "&problemId=1")
+                    .retrieve()
+                    .body(ProblemHistoryResponse.class);
+
+            assertThat(response).isNotNull();
+            assertThat(response.answerCorrectRate()).isEqualTo(67);
         }
 
         @Test
